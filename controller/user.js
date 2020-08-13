@@ -146,15 +146,15 @@ exports.readUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = await User.findOne({
+    await User.destroy({
       where: {
         id,
       },
     });
-    await User.destroy(userId);
     res.status(200).send({
+      message: "Success Deleted",
       data: {
-        id: userId.id,
+        id,
       },
     });
   } catch (err) {
