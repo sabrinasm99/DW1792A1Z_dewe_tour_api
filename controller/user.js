@@ -129,3 +129,39 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.readUser = async (req, res) => {
+  try {
+    const usersData = await User.findAll();
+    res.status(200).send({ data: usersData });
+  } catch (err) {
+    res.status(500).send({
+      error: {
+        message: "Server Error",
+      },
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = await User.findOne({
+      where: {
+        id,
+      },
+    });
+    await User.destroy(userId);
+    res.status(200).send({
+      data: {
+        id: userId.id,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      error: {
+        message: "Server Error",
+      },
+    });
+  }
+};
