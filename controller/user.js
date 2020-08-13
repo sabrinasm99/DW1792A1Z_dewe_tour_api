@@ -63,7 +63,68 @@ exports.register = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       error: {
-        message: err.message,
+        message: "Server Error",
+      },
+    });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const schema = joi.object({
+      email: joi.string().email().min(10).required(),
+      password: joi.string().min(8).required(),
+    });
+    const validation = schema.validate(req.body);
+    if (validation.error) {
+      return res.status(400).send({
+        error: {
+          message: error.details[0].message,
+        },
+      });
+    }
+
+    const userExist = await User.findOne({
+      where: {
+        email,
+      },
+    });
+    if (!userExist) {
+      return res.status(400).send({
+        error: {
+          message: "Couldn't find your account",
+        },
+      });
+    }
+    const validPass = await bcrypt.compare(password, userExist.password);
+    if (!validPass) {
+      return res.status(400).send({
+        error: {
+          message: "Email or password invalid",
+        },
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: userExist.id,
+      },
+      process.env.JWT_PASS
+    );
+
+    res.status(200).send({
+      message: "Success Login",
+      data: {
+        email: userExist.email,
+        token,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      error: {
+        message: "Server Error",
       },
     });
   }
