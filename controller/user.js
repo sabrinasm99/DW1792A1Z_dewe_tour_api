@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.readUser = async (req, res) => {
+exports.readUsers = async (req, res) => {
   try {
     const usersData = await User.findAll();
     res.status(200).send({ data: usersData });
