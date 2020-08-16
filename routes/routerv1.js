@@ -37,8 +37,8 @@ router.patch("/country/:id", authenticated, editCountry);
 // Trip
 router.get("/trip", readTrips);
 router.get("/trip/:id", readDetailTrip);
-router.post("/trip", authenticated, fileUpload(), addTrip);
-router.patch("/trip/:id", authenticated, fileUpload(), editTrip);
+router.post("/trip", fileUpload(), addTrip);
+router.patch("/trip/:id", fileUpload(), editTrip);
 router.delete("/trip/:id", authenticated, deleteTrip)
 
 module.exports = router;

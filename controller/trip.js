@@ -60,39 +60,11 @@ exports.readDetailTrip = async (req, res) => {
 
 exports.addTrip = async (req, res) => {
   try {
-    const {
-      title,
-      countryId,
-      accomodation,
-      transportation,
-      eat,
-      day,
-      night,
-      dateTrip,
-      price,
-      quota,
-      description,
-    } = req.body;
-    const postData = {
-      title,
-      countryId,
-      accomodation,
-      transportation,
-      eat,
-      day,
-      night,
-      dateTrip,
-      price,
-      quota,
-      description,
-    };
-
     const { tripImage } = req.files;
     const tripImageName = tripImage.name;
     await tripImage.mv(`./images/${tripImageName}`);
-    postData.image = tripImageName;
 
-    const addTrip = await Trip.create(postData);
+    const addTrip = await Trip.create({ ...req.body, image: tripImageName });
     res.status(200).send({ message: "Data Posted", data: addTrip });
   } catch (err) {
     res.status(500).send({
@@ -108,31 +80,8 @@ exports.editTrip = async (req, res) => {
     const { id } = req.params;
     const detailTrip = await Trip.findOne({ where: { id } });
     if (detailTrip) {
-      const {
-        title,
-        countryId,
-        accomodation,
-        transportation,
-        eat,
-        day,
-        night,
-        dateTrip,
-        price,
-        quota,
-        description,
-      } = req.body;
       const editTrip = {
-        title,
-        countryId,
-        accomodation,
-        transportation,
-        eat,
-        day,
-        night,
-        dateTrip,
-        price,
-        quota,
-        description,
+        ...req.body,
       };
       const oldImage = detailTrip.image;
       if (req.files) {
@@ -158,7 +107,10 @@ exports.editTrip = async (req, res) => {
           exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
         },
       });
-      res.status(200).send({ message: `Data with id ${id} has been updated`, data: newDetailTrip });
+      res.status(200).send({
+        message: `Data with id ${id} has been updated`,
+        data: newDetailTrip,
+      });
     } else {
       res.status(400).send({ message: "Data isn't exist" });
     }

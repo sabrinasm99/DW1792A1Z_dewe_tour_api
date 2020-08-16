@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
           name: "countryId",
         },
       });
+      Trip.hasOne(models.Transaction);
     }
   }
   Trip.init(
