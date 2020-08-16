@@ -20,6 +20,7 @@ const {
     editTrip,
     deleteTrip,
   } = require("../controller/trip");
+const { addTransaction, editTransaction, readDetailTransaction, readOrders } = require("../controller/transaction")
 const { authenticated } = require("../middleware/auth");
 
 // User
@@ -37,8 +38,14 @@ router.patch("/country/:id", authenticated, editCountry);
 // Trip
 router.get("/trip", readTrips);
 router.get("/trip/:id", readDetailTrip);
-router.post("/trip", fileUpload(), addTrip);
-router.patch("/trip/:id", fileUpload(), editTrip);
+router.post("/trip", authenticated, fileUpload(), addTrip);
+router.patch("/trip/:id", authenticated, fileUpload(), editTrip);
 router.delete("/trip/:id", authenticated, deleteTrip)
+
+// Transaction
+router.post("/transaction", authenticated, fileUpload(), addTransaction);
+router.patch("/transaction/:id", authenticated, editTransaction);
+router.get("/transaction/:id", readDetailTransaction);
+router.get("/orders", readOrders);
 
 module.exports = router;
