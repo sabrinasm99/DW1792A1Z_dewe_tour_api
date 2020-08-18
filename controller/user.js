@@ -10,14 +10,14 @@ exports.register = async (req, res) => {
       fullName: joi.string().min(3).required(),
       email: joi.string().email().min(10).required(),
       password: joi.string().min(8).required(),
-      phone: joi.string().max(15).required(),
+      phone: joi.string().max(20).required(),
       address: joi.string().required(),
     });
-    const validation = schema.validate(req.body);
-    if (validation.error) {
+    const { error } = schema.validate(req.body);
+    if (error) {
       return res.status(400).send({
         error: {
-          message: error.message.details[0],
+          message: error.details[0].message,
         },
       });
     }
