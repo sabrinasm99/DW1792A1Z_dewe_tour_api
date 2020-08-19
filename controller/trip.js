@@ -69,7 +69,7 @@ exports.addTrip = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       error: {
-        message: err.message,
+        message: "Server Error",
       },
     });
   }
