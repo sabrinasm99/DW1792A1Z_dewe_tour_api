@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const fileUpload = require("express-fileupload");
 const {
-  register,
-  login,
   readUsers,
   deleteUser,
 } = require("../controller/user");
@@ -20,12 +18,16 @@ const {
     editTrip,
     deleteTrip,
   } = require("../controller/trip");
-const { addTransaction, editTransaction, readDetailTransaction, readOrders } = require("../controller/transaction")
+const { addTransaction, readDetailTransaction, readOrders, editTransaction } = require("../controller/transaction")
+const { registerUser,login, registerAdmin } = require("../controller/auth");
 const { authenticated } = require("../middleware/auth");
 
-// User
-router.post("/register", register);
+// Auth
+router.post("/register", registerUser);
+router.post("/register-admin", registerAdmin);
 router.post("/login", login);
+
+// User
 router.get("/users", readUsers);
 router.delete("/users/:id", deleteUser);
 

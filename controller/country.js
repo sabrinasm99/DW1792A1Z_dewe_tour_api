@@ -2,7 +2,11 @@ const { Country } = require("../models");
 
 exports.readCountries = async (req, res) => {
   try {
-    const countries = await Country.findAll();
+    const countries = await Country.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    });
     res.status(200).send({ data: countries });
   } catch (err) {
     res.status(500).send({
@@ -16,9 +20,12 @@ exports.readCountries = async (req, res) => {
 exports.readDetailCountry = async (req, res) => {
   try {
     const { id } = req.params;
-    const detailCountry = Country.findOne({
+    const detailCountry = await Country.findOne({
       where: {
         id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
       },
     });
     res.status(200).send({ data: detailCountry });
@@ -33,7 +40,14 @@ exports.readDetailCountry = async (req, res) => {
 
 exports.addCountry = async (req, res) => {
   try {
-    const savedData = await Country.create(req.body);
+    const { name } = req.body;
+    const checkName = await Country.findOne({ where: { name } });
+    if (checkName) {
+      res
+        .status(400)
+        .send({ message: `The country name: ${name} has already exist` });
+    }
+    const savedData = await Country.create({ name });
     res.status(200).send({
       message: "Country has been added",
       data: savedData,

@@ -13,8 +13,10 @@ exports.authenticated = (req, res, next) => {
     });
   try {
     const verified = jwt.verify(token, process.env.JWT_PASS);
-    req.user = verified;
-    next();
+    // req.user = verified;
+    if (verified) {
+      next();
+    }
   } catch (err) {
     res.status(400).send({
       error: {

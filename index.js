@@ -14,7 +14,6 @@ db.sequelize
 app.use('/image', express.static('images'));
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 const routerv1 = require("./routes/routerv1");
 app.use("/api/v1", routerv1);

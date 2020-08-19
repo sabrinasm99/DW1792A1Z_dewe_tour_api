@@ -1,13 +1,13 @@
-const { Transaction } = require("../models");
-const { Trip } = require("../models");
+const { Transaction, Trip, Country } = require("../models");
 
 exports.addTransaction = async (req, res) => {
   try {
     const { attachment } = req.files;
     const attachmentName = attachment.name;
     await attachment.mv(`./images/${attachmentName}`);
-    const { counterQty, total, status, tripId } = req.body;
+    const { name, counterQty, total, status, tripId } = req.body;
     const dataTransaction = {
+      name,
       counterQty,
       total,
       status,
@@ -21,7 +21,7 @@ exports.addTransaction = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       error: {
-        message: "Server Error",
+        message: err.message,
       },
     });
   }
@@ -66,6 +66,13 @@ exports.readDetailTransaction = async (req, res) => {
         attributes: {
           exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
         },
+        include: {
+          model: Country,
+          as: "country",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
       },
       attributes: { exclude: ["tripId", "TripId", "createdAt", "updatedAt"] },
     });
@@ -91,7 +98,7 @@ exports.readOrders = async (req, res) => {
       },
       attributes: { exclude: ["tripId", "TripId", "createdAt", "updatedAt"] },
     });
-    res.status(200).send({data: orders})
+    res.status(200).send({ data: orders });
   } catch (err) {
     res.status(500).send({
       error: {
