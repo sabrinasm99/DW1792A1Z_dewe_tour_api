@@ -5,12 +5,13 @@ const { User } = require("../models");
 
 exports.registerAdmin = async (req, res) => {
   try {
-    const { fullName, email, password, phone, address } = req.body;
+    const { fullName, email, password, phone, gender, address } = req.body;
     const schema = joi.object({
       fullName: joi.string().min(3).required(),
       email: joi.string().email().min(10).required(),
       password: joi.string().min(8).required(),
       phone: joi.string().max(20).required(),
+      gender: joi.string().required(),
       address: joi.string().required(),
     });
     const { error } = schema.validate(req.body);
@@ -43,8 +44,10 @@ exports.registerAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
+      gender,
       address,
       role: "Admin",
+      image: null,
     });
 
     const token = jwt.sign(
@@ -60,6 +63,7 @@ exports.registerAdmin = async (req, res) => {
         email: dataAdmin.email,
         token,
         role: dataAdmin.role,
+        image: dataAdmin.image,
       },
     });
   } catch (err) {
@@ -73,12 +77,13 @@ exports.registerAdmin = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, phone, address } = req.body;
+    const { fullName, email, password, phone, gender, address } = req.body;
     const schema = joi.object({
       fullName: joi.string().min(3).required(),
       email: joi.string().email().min(10).required(),
       password: joi.string().min(8).required(),
       phone: joi.string().max(20).required(),
+      gender: joi.string().required(),
       address: joi.string().required(),
     });
     const { error } = schema.validate(req.body);
@@ -111,8 +116,10 @@ exports.registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
+      gender,
       address,
       role: "User",
+      image: null,
     });
 
     const token = jwt.sign(
@@ -129,6 +136,9 @@ exports.registerUser = async (req, res) => {
         token,
         role: dataUser.role,
         fullName: dataUser.fullName,
+        gender: dataUser.gender,
+        id: dataUser.id,
+        image: dataUser.image,
       },
     });
   } catch (err) {
@@ -192,6 +202,9 @@ exports.login = async (req, res) => {
         token,
         role: userExist.role,
         fullName: userExist.fullName,
+        gender: userExist.gender,
+        id: userExist.id,
+        image: userExist.image,
       },
     });
   } catch (err) {

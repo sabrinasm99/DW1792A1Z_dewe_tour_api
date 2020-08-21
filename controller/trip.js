@@ -47,6 +47,7 @@ exports.readDetailTrip = async (req, res) => {
       },
     });
     res.status(200).send({
+      message: 'Response Success',
       data: detailTrip,
     });
   } catch (err) {
@@ -65,7 +66,7 @@ exports.addTrip = async (req, res) => {
     await tripImage.mv(`./images/${tripImageName}`);
 
     const addTrip = await Trip.create({ ...req.body, image: tripImageName });
-    res.status(200).send({ message: "Data Posted", data: addTrip });
+    res.status(200).send({ message: "Success Add Trip", data: addTrip });
   } catch (err) {
     res.status(500).send({
       error: {
