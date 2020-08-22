@@ -1,36 +1,47 @@
-const { Transaction, Trip, Country } = require("../models");
+const { Transaction, Trip, Country, User } = require("../models");
+const fse = require("fs-extra");
 
 exports.addTransaction = async (req, res) => {
   try {
-    const { name, counterQty, total, status, tripId } = req.body;
+    const { userId, counterQty, total, status, tripId, bookingDate } = req.body;
     const dataTransaction = {
-      name,
+      userId,
       counterQty,
       total,
       status,
-      attachment: null,
+      attachment: "",
       tripId,
+      bookingDate,
     };
     console.log(dataTransaction);
     const postTransaction = await Transaction.create(dataTransaction);
     const findTransaction = await Transaction.findOne({
       where: { id: postTransaction.id },
-      include: {
-        model: Trip,
-        as: "trip",
-        attributes: {
-          exclude: ["createdAt", "updatedAt", "countryId", "CountryId"],
+      include: [
+        {
+          model: Trip,
+          as: "trip",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "countryId", "CountryId"],
+          },
+          include: {
+            model: Country,
+            as: "country",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
         },
-        include: {
-          model: Country,
-          as: "country",
+        {
+          model: User,
+          as: "user",
           attributes: {
             exclude: ["createdAt", "updatedAt"],
           },
         },
-      },
+      ],
       attributes: {
-        exclude: ["createdAt", "updatedAt", "tripId", "TripId"],
+        exclude: ["createdAt", "updatedAt", "tripId", "TripId", "userId"],
       },
     });
     res
@@ -51,7 +62,10 @@ exports.editTransactionByUser = async (req, res) => {
     const { attachment } = req.files;
     const attachmentName = attachment.name;
     await attachment.mv(`./images/${attachmentName}`);
-    await Transaction.update({ attachment: attachmentName }, { where: { id } });
+    await Transaction.update(
+      { status: "Waiting Approve", attachment: attachmentName },
+      { where: { id } }
+    );
     res.status(200).send({ message: "Success Edit Transaction" });
   } catch (err) {
     res.status(500).send({
@@ -65,16 +79,42 @@ exports.editTransactionByUser = async (req, res) => {
 exports.editTransactionByAdmin = async (req, res) => {
   try {
     const { id } = req.params;
-    await Transaction.update({ status: req.body.status }, { where: { id } });
+    const { status } = req.body;
+    const findTransaction = await Transaction.findOne({ where: { id } });
+    const oldImage = findTransaction.attachment;
+    await fse.remove(`./images/${oldImage}`);
+    const { attachment } = req.files;
+    const attachmentName = attachment.name;
+    await attachment.mv(`./images/${attachmentName}`);
+    await Transaction.update(
+      { status, attachment: attachmentName },
+      { where: { id } }
+    );
     const dataTransaction = await Transaction.findOne({
       where: { id },
-      include: {
-        model: Trip,
-        as: "trip",
-        attributes: {
-          exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: Trip,
+          as: "trip",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "countryId", "CountryId"],
+          },
+          include: {
+            model: Country,
+            as: "country",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
         },
-      },
+        {
+          model: User,
+          as: "user",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
       attributes: { exclude: ["tripId", "TripId", "createdAt", "updatedAt"] },
     });
     res.status(200).send({
@@ -84,7 +124,7 @@ exports.editTransactionByAdmin = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       error: {
-        message: "Server Error",
+        message: err.message,
       },
     });
   }
@@ -95,21 +135,39 @@ exports.readDetailTransaction = async (req, res) => {
     const { id } = req.params;
     const detailTransaction = await Transaction.findOne({
       where: { id },
-      include: {
-        model: Trip,
-        as: "trip",
-        attributes: {
-          exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: Trip,
+          as: "trip",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "countryId", "CountryId"],
+          },
+          include: {
+            model: Country,
+            as: "country",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
         },
-        include: {
-          model: Country,
-          as: "country",
+        {
+          model: User,
+          as: "user",
           attributes: {
             exclude: ["createdAt", "updatedAt"],
           },
         },
+      ],
+      attributes: {
+        exclude: [
+          "userId",
+          "UserId",
+          "tripId",
+          "TripId",
+          "createdAt",
+          "updatedAt",
+        ],
       },
-      attributes: { exclude: ["tripId", "TripId", "createdAt", "updatedAt"] },
     });
     res
       .status(200)
@@ -123,17 +181,86 @@ exports.readDetailTransaction = async (req, res) => {
   }
 };
 
+exports.readTransactionByName = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findTransaction = await Transaction.findAll({
+      where: { userId: id },
+      include: [
+        {
+          model: Trip,
+          as: "trip",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "countryId", "CountryId"],
+          },
+          include: {
+            model: Country,
+            as: "country",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: [
+          "userId",
+          "UserId",
+          "tripId",
+          "TripId",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
+    });
+    res
+      .status(200)
+      .send({ message: "Response Success", data: findTransaction });
+  } catch (err) {
+    res.status(500).send({
+      error: {
+        message: "Server Error",
+      },
+    });
+  }
+};
+
 exports.readOrders = async (req, res) => {
   try {
     const orders = await Transaction.findAll({
-      include: {
-        model: Trip,
-        as: "trip",
-        attributes: {
-          exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
+      include: [
+        {
+          model: Trip,
+          as: "trip",
+          attributes: {
+            exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
+          },
         },
+        {
+          model: User,
+          as: "user",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: [
+          "userId",
+          "UserId",
+          "tripId",
+          "TripId",
+          "createdAt",
+          "updatedAt",
+        ],
       },
-      attributes: { exclude: ["tripId", "TripId", "createdAt", "updatedAt"] },
     });
     res.status(200).send({ message: "Response Success", data: orders });
   } catch (err) {

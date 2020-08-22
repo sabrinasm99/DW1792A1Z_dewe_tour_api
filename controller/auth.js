@@ -134,10 +134,8 @@ exports.registerUser = async (req, res) => {
       data: {
         email: dataUser.email,
         token,
-        role: dataUser.role,
-        fullName: dataUser.fullName,
-        gender: dataUser.gender,
         id: dataUser.id,
+        role: dataUser.role,
         image: dataUser.image,
       },
     });
@@ -200,10 +198,8 @@ exports.login = async (req, res) => {
       data: {
         email: userExist.email,
         token,
-        role: userExist.role,
-        fullName: userExist.fullName,
-        gender: userExist.gender,
         id: userExist.id,
+        role: userExist.role,
         image: userExist.image,
       },
     });

@@ -14,16 +14,23 @@ module.exports = (sequelize, DataTypes) => {
           name: "tripId",
         },
       });
+      Transaction.belongsTo(models.User, {
+        as: "user",
+        foreignKey: {
+          name: "userId",
+        },
+      });
     }
   }
   Transaction.init(
     {
-      name: DataTypes.STRING,
+      userId: DataTypes.INTEGER,
       counterQty: DataTypes.INTEGER,
       total: DataTypes.INTEGER,
       status: DataTypes.STRING,
       attachment: DataTypes.STRING,
       tripId: DataTypes.INTEGER,
+      bookingDate: DataTypes.STRING,
     },
     {
       sequelize,
