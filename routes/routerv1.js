@@ -20,7 +20,7 @@ const {
     editTrip,
     deleteTrip,
   } = require("../controller/trip");
-const { addTransaction, readDetailTransaction, readOrders, editTransactionByAdmin, editTransactionByUser, readTransactionByName } = require("../controller/transaction")
+const { addTransaction, readDetailTransaction, readOrders, editTransactionByAdmin, editTransactionByUser, readApproveTransaction, readWaitingTransaction, uploadProofPayment, agreeToPay } = require("../controller/transaction")
 const { registerUser,login, registerAdmin } = require("../controller/auth");
 const { authenticated } = require("../middleware/auth");
 
@@ -51,9 +51,11 @@ router.delete("/trip/:id", authenticated, deleteTrip)
 // Transaction
 router.post("/transaction", authenticated, addTransaction);
 router.patch("/transaction-admin/:id", authenticated, fileUpload(), editTransactionByAdmin);
-router.patch("/transaction-user/:id", authenticated, fileUpload(), editTransactionByUser);
+router.patch("/transaction-user-upload/:id", authenticated, fileUpload(), uploadProofPayment);
+router.patch("/transaction-user-agree/:id", authenticated, agreeToPay);
 router.get("/transaction/:id", authenticated, readDetailTransaction);
-router.get("/transaction-by-name/:id", authenticated, readTransactionByName);
+router.get("/transaction-approve/:id", authenticated, readApproveTransaction);
+router.get("/transaction-waiting/:id", authenticated, readWaitingTransaction);
 router.get("/orders", readOrders);
 
 module.exports = router;
