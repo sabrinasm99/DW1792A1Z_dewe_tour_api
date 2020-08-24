@@ -20,6 +20,7 @@ module.exports = {
     password: process.env.DB_PASS,
     database: "dewetour",
     host: "188.166.217.100",
+    port: 8000,
     dialect: "mysql",
     dialectOption: {
       ssl: "true",
