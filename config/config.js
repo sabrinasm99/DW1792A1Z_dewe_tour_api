@@ -16,8 +16,11 @@ module.exports = {
   },
   production: {
     use_env_variable: "DATABASE_URL",
-    dialect: "postgres",
-    protocol: "postgres",
+    username: "root",
+    password: process.env.DB_PASS,
+    database: "dewetour",
+    host: "188.166.217.100",
+    dialect: "mysql",
     dialectOption: {
       ssl: "true",
     },
