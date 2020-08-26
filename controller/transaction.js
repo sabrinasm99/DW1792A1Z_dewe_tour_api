@@ -94,9 +94,14 @@ exports.uploadProofPayment = async (req, res) => {
 exports.agreeToPay = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
-    await Transaction.update({ status }, { where: { id } });
-    res.status(200).send({ message: "Success Edit Transaction" });
+    const findTransaction = await Transaction.findOne({ where: { id } });
+    if (findTransaction.attachment) {
+      const { status } = req.body;
+      await Transaction.update({ status }, { where: { id } });
+      res.status(200).send({ message: "Success Edit Transaction" });
+    } else {
+      res.status(400).send({ message: "You must upload payment proof first" });
+    }
   } catch (err) {
     res.status(500).send({
       error: {
