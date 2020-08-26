@@ -1,5 +1,9 @@
 const { Trip, Country } = require("../models");
 const fse = require("fs-extra");
+const Fuse = require("fuse.js");
+const options = {
+  keys: ['title']
+}
 
 exports.readTrips = async (req, res) => {
   try {
@@ -15,14 +19,21 @@ exports.readTrips = async (req, res) => {
         exclude: ["countryId", "CountryId", "createdAt", "updatedAt"],
       },
     });
+    let result = [...trips];
+    const fuse = new Fuse(result, options);
+    if (req.query.search) {
+      result = fuse.search(req.query.search).map(val => {
+        return val.item
+      })
+    }
     res.status(200).send({
       message: "Response Success",
-      data: trips,
+      data: result,
     });
   } catch (err) {
     res.status(500).send({
       error: {
-        message: "Server Error",
+        message: err.message,
       },
     });
   }
@@ -47,7 +58,7 @@ exports.readDetailTrip = async (req, res) => {
       },
     });
     res.status(200).send({
-      message: 'Response Success',
+      message: "Response Success",
       data: detailTrip,
     });
   } catch (err) {
